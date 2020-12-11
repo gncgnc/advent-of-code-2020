@@ -12,7 +12,7 @@ function renderBoard(board) {
 }
 
 function isInBounds({ x, y }, board) {
-  return x >= 0 && x < board.length && y >= 0 && y < board[0].length;
+  return y >= 0 && y < board.length && x >= 0 && x < board[0].length;
 }
 
 function getNeighbors(cx, cy, board) {
@@ -25,11 +25,11 @@ function getNeighbors(cx, cy, board) {
   }
   return surroundingIdxs
     .filter((idxs) => isInBounds(idxs, board))
-    .map(({ x, y }) => board[x][y]);
+    .map(({ x, y }) => board[y][x]);
 }
 
 function updateCell(x, y, board) {
-  const s = board[x][y];
+  const s = board[y][x];
   const neighbors = getNeighbors(x, y, board);
 
   var numOccupied = neighbors.reduce((sum, cell) => {
@@ -46,7 +46,7 @@ function updateCell(x, y, board) {
 }
 
 function updateCell2(x, y, board) {
-  const s = board[x][y];
+  const s = board[y][x];
   const neighbors = getVisible(x, y, board);
 
   var numOccupied = neighbors.reduce((sum, cell) => {
@@ -76,7 +76,7 @@ function getVisible(cx, cy, board) {
 
     let seen;
     while (isInBounds({ x, y }, board) && seen !== "L" && seen !== "#") {
-      seen = board[x][y];
+      seen = board[y][x];
       x += dx;
       y += dy;
     }
@@ -91,10 +91,10 @@ function tick(board) {
     return row.map((cell) => cell);
   });
 
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[0].length; j++) {
-      let newState = updateCell(i, j, board);
-      newBoard[i][j] = newState;
+  for (let y = 0; y < board.length; y++) {
+    for (let x = 0; x < board[0].length; x++) {
+      let newState = updateCell(x, y, board);
+      newBoard[y][x] = newState;
     }
   }
 
@@ -145,4 +145,4 @@ function run(inputFile) {
   ////////////////
 }
 
-console.log(run("11-sample.txt"));
+console.log(run("11-input.txt"));
