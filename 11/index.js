@@ -15,19 +15,6 @@ function isInBounds({ x, y }, board) {
   return y >= 0 && y < board.length && x >= 0 && x < board[0].length;
 }
 
-function getNeighbors(cx, cy, board) {
-  let surroundingIdxs = [];
-  for (let i = -1; i < 2; i++) {
-    for (let j = -1; j < 2; j++) {
-      if (i === 0 && j === 0) continue;
-      surroundingIdxs.push({ x: cx + i, y: cy + j });
-    }
-  }
-  return surroundingIdxs
-    .filter((idxs) => isInBounds(idxs, board))
-    .map(({ x, y }) => board[y][x]);
-}
-
 function updateCell(x, y, board) {
   const s = board[y][x];
   const neighbors = getNeighbors(x, y, board);
@@ -43,6 +30,19 @@ function updateCell(x, y, board) {
   } else {
     return s;
   }
+}
+
+function getNeighbors(cx, cy, board) {
+  let surroundingIdxs = [];
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      if (i === 0 && j === 0) continue;
+      surroundingIdxs.push({ x: cx + i, y: cy + j });
+    }
+  }
+  return surroundingIdxs
+    .filter((idxs) => isInBounds(idxs, board))
+    .map(({ x, y }) => board[y][x]);
 }
 
 function updateCell2(x, y, board) {
@@ -70,7 +70,10 @@ function getVisible(cx, cy, board) {
       surroundingDirs.push({ x: i, y: j });
     }
   }
-  let visible = surroundingDirs.map(({ x: dx, y: dy }) => {
+  let validDirs = surroundingDirs.filter(({ x: dx, y: dy }) => {
+    return isInBounds({ x: cx + dx, y: cy + dy }, board);
+  });
+  let visible = validDirs.map(({ x: dx, y: dy }) => {
     let x = cx + dx;
     let y = cy + dy;
 
@@ -80,13 +83,13 @@ function getVisible(cx, cy, board) {
       x += dx;
       y += dy;
     }
-    return { dx, dy, seen };
+    return seen;
   });
 
   return visible;
 }
 
-function tick(board) {
+function tick(board, updateCell) {
   let newBoard = board.map((row) => {
     return row.map((cell) => cell);
   });
@@ -104,45 +107,49 @@ function tick(board) {
 function run(inputFile) {
   let input = readFileSync(inputFile, "utf-8");
 
-  //   input = `.......#.
-  // ...#.....
-  // .#.......
-  // .........
-  // ..#L....#
-  // ....#....
-  // .........
-  // #........
-  // ...#.....
-  // `;
   let board = input.split("\n").map((line) => {
-    let row = [...line];
-    row.pop();
+    let row = [...line].filter((c) => c !== "\r");
     return row;
   });
   board.pop();
 
-  // console.log(board);
-  // console.log("________");
-  // return getVisible(4, 3, board);
-
   //// PART 1 ////
+  // let renderedBoard = renderBoard(board);
+  // let oldRenderedBoard = null;
+
+  // let i = 0;
+  // while (i < 10 || renderedBoard !== oldRenderedBoard) {
+  //   console.log(renderedBoard);
+  //   console.log("___________");
+  //   oldRenderedBoard = renderedBoard;
+  //   board = tick(board, updateCell);
+  //   renderedBoard = renderBoard(board);
+  //   i++;
+  // }
+
+  // console.log("done");
+
+  ////////////////
+
+  //// PART 2 ////
   let renderedBoard = renderBoard(board);
   let oldRenderedBoard = null;
 
   let i = 0;
-  while (i < 10 || renderedBoard !== oldRenderedBoard) {
+  while (renderedBoard !== oldRenderedBoard) {
     console.log(renderedBoard);
     console.log("___________");
     oldRenderedBoard = renderedBoard;
-    board = tick(board);
+    board = tick(board, updateCell2);
     renderedBoard = renderBoard(board);
     i++;
   }
 
   console.log("done");
+  console.log(renderedBoard);
+  /////////////////
 
   return [...renderedBoard].filter((c) => c === "#").length;
-  ////////////////
 }
 
 console.log(run("11-input.txt"));
