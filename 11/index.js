@@ -23,7 +23,9 @@ function getNeighbors(cx, cy, board) {
       surroundingIdxs.push({ x: cx + i, y: cy + j });
     }
   }
-  return surroundingIdxs.filter(isInBounds).map(({ x, y }) => board[x][y]);
+  return surroundingIdxs
+    .filter((idxs) => isInBounds(idxs, board))
+    .map(({ x, y }) => board[x][y]);
 }
 
 function updateCell(x, y, board) {
@@ -102,16 +104,16 @@ function tick(board) {
 function run(inputFile) {
   let input = readFileSync(inputFile, "utf-8");
 
-  input = `.......#.
-...#.....
-.#.......
-.........
-..#L....#
-....#....
-.........
-#........
-...#.....
-`;
+  //   input = `.......#.
+  // ...#.....
+  // .#.......
+  // .........
+  // ..#L....#
+  // ....#....
+  // .........
+  // #........
+  // ...#.....
+  // `;
   let board = input.split("\n").map((line) => {
     let row = [...line];
     row.pop();
@@ -119,26 +121,28 @@ function run(inputFile) {
   });
   board.pop();
 
-  console.log(board);
-  console.log("________");
-  return getVisible(4, 3, board);
+  // console.log(board);
+  // console.log("________");
+  // return getVisible(4, 3, board);
 
   //// PART 1 ////
-  // let renderedBoard = renderBoard(board);
-  // let oldRenderedBoard = null;
+  let renderedBoard = renderBoard(board);
+  let oldRenderedBoard = null;
 
-  // while (renderedBoard !== oldRenderedBoard) {
-  //   console.log(renderedBoard);
-  //   console.log("___________");
-  //   oldRenderedBoard = renderedBoard;
-  //   board = tick(board);
-  //   renderedBoard = renderBoard(board);
-  // }
+  let i = 0;
+  while (i < 10 || renderedBoard !== oldRenderedBoard) {
+    console.log(renderedBoard);
+    console.log("___________");
+    oldRenderedBoard = renderedBoard;
+    board = tick(board);
+    renderedBoard = renderBoard(board);
+    i++;
+  }
 
-  // console.log("done");
+  console.log("done");
 
-  // return [...renderedBoard].filter((c) => c === "#").length;
+  return [...renderedBoard].filter((c) => c === "#").length;
   ////////////////
 }
 
-console.log(run("11-input.txt"));
+console.log(run("11-sample.txt"));
